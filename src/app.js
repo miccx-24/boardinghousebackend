@@ -21,6 +21,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/landlord', require('./routes/landlord'));
+app.use('/api/tenant', require('./routes/tenant')); 
 
 // Error handling middleware
 app.use((err, req, res, next) => {
