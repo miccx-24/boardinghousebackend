@@ -1,4 +1,4 @@
-const { createInvoice, retrieveInvoice } = require("../../services/stripe/invoice");
+const { createInvoice, retrieveInvoice, cancelInvoice } = require("../../services/stripe/invoice");
 const Bill = require("../../models/bill");
 const Tenant = require("../../models/tenant");
 const { NotFoundError, BadRequestError } = require("../../utils/errors");
@@ -105,7 +105,7 @@ module.exports = {
 
       // Cancel Stripe invoice if exists
       if (bill.stripeInvoiceId) {
-        // Implement stripe invoice cancellation logic
+        await cancelInvoice(bill.stripeInvoiceId);
       }
 
       res.status(200).json({ success: true, data: {} });
