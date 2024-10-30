@@ -3,44 +3,59 @@ const mongoose = require('mongoose');
 const billSchema = new mongoose.Schema({
   tenantId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Tenant',
-    required: true
-  },
-  landlordId: {
-    type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
-  amount: {
-    type: Number,
+  propertyId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Property',
     required: true
   },
-  description: {
-    type: String,
+  date: {
+    type: Date,
     required: true
   },
   dueDate: {
     type: Date,
     required: true
   },
-  billType: {
+  description: {
     type: String,
-    enum: ['rent', 'utility', 'maintenance', 'other'],
+    required: true
+  },
+  amount: {
+    type: Number,
     required: true
   },
   status: {
     type: String,
-    enum: ['pending', 'paid', 'overdue', 'cancelled'],
-    default: 'pending'
+    enum: ['Paid', 'Pending', 'Due'],
+    default: 'Due'
   },
-  stripeInvoiceId: {
+  reference: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
+  paymentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Payment'
   }
+}, {
+  timestamps: true
 });
 
-module.exports = mongoose.model('Bill', billSchema); 
+// Generate reference number
+billSchema.pre('save', async function(next) {
+  if (!this.reference) {
+    const date = new Date(this.date);
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const count = await mongoose.model('Bill').countDocuments() + 1;
+    this.reference = `INV-${year}-${month}-${String(count).padStart(3, '0')}`;
+  }
+  next();
+});
+
+const Bill = mongoose.model('Bill', billSchema);
+module.exports = Bill; 

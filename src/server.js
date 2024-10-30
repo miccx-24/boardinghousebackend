@@ -1,4 +1,4 @@
-const app = require('./app');
+const app = require('./app');  // Import the configured app
 const dotenv = require('dotenv');
 
 // Load environment variables

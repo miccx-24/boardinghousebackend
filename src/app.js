@@ -6,6 +6,9 @@ require('dotenv').config();
 
 const connectDB = require('./config/database');
 const authRoutes = require('./routes/auth.routes');
+const roomRoutes = require('./routes/landlord/room.routes');
+const propertyRoutes = require('./routes/landlord/property.routes');
+const tenantRoutes = require('./routes/landlord/tenant.routes');
 
 const app = express();
 
@@ -21,13 +24,23 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/landlord', require('./routes/landlord'));
-app.use('/api/tenant', require('./routes/tenant')); 
+app.use('/api/landlord', roomRoutes);
+app.use('/api/landlord', propertyRoutes);
+app.use('/api/landlord', tenantRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: 'Something went wrong!' });
+    console.error('Error details:', {
+        message: err.message,
+        stack: err.stack,
+        path: req.path,
+        method: req.method,
+        body: req.body
+    });
+    res.status(500).json({ 
+        message: 'Something went wrong!',
+        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
 });
 
 module.exports = app;
